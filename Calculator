@@ -1,0 +1,95 @@
+import tkinter as tk
+
+def button_click(symbol):
+    current_text = entry.get()
+    entry.delete(0, tk.END)
+    entry.insert(tk.END, current_text + str(symbol))
+
+def clear_entry():
+    entry.delete(0, tk.END)
+
+def calculate_result():
+    try:
+        expression = entry.get()
+        # Replace 'X' with '*'
+        expression = expression.replace('X', '*')
+        # Replace '÷' with '/'
+        expression = expression.replace('÷', '/')
+        result = eval(expression)
+        entry.delete(0, tk.END)
+        entry.insert(tk.END, str(result))
+    except Exception as e:
+        entry.delete(0, tk.END)
+        entry.insert(tk.END, "Mathematical Error. Please ask Tella for help.")
+
+# Function to handle decimal point
+def add_decimal_point():
+    current_text = entry.get()
+    if '.' not in current_text:
+        entry.delete(0, tk.END)
+        entry.insert(tk.END, current_text + '.')
+
+# Function to handle brackets
+def add_bracket(symbol):
+    current_text = entry.get()
+    entry.delete(0, tk.END)
+    entry.insert(tk.END, current_text + str(symbol))
+
+def backspace():
+    current_text = entry.get()
+    entry.delete(0, tk.END)
+    entry.insert(tk.END, current_text[:-1])
+
+def create_circle_button(canvas, x, y, text, command, color='#181c23'):
+    button = tk.Button(canvas, text=text, width=2, height=1, command=command, borderwidth=0, highlightthickness=0, bg=color, fg='white')
+    button_window = canvas.create_window(x, y, anchor='center', window=button)
+    canvas.create_oval(x - 20, y - 20, x + 20, y + 20, outline='black', width=2, fill=color)
+    return button
+
+# Create the main window
+root = tk.Tk()
+root.title("Tella’s Calculator")
+root.geometry("197x310")
+
+canvas = tk.Canvas(root, width=400, height=400, highlightthickness=0)
+canvas.pack()
+canvas.config(bg="#111318")
+
+# Entry widget to display input and results
+entry = tk.Entry(canvas, width=17, font=('Arial', 15), justify='left', highlightthickness=0, borderwidth=0, bg="#262b37", fg="white")
+entry_window = canvas.create_window(30, 20, anchor='w', window=entry)  # Adjust the coordinates to move the entry widget more to the left within the canvas
+
+# Buttons
+buttons = [
+    ('7', (23, 130)), ('8', (73, 130)), ('9', (123, 130)), ('÷', (173, 80)),
+    ('4', (23, 180)), ('5', (73, 180)), ('6', (123, 180)), ('X', (173, 130)),
+    ('1', (23, 230)), ('2', (73, 230)), ('3', (123, 230)), ('-', (173, 180)),
+    ('0', (23, 280)), ('.', (73, 280)), ('+', (173, 230)),
+    ('(', (73, 80)), (')', (123, 80)), ('⌫', (123, 280)),
+    ('=', (173, 280)), ('AC', (23, 80))
+]
+
+# Draw red rectangle around entry widget
+entry_bbox = canvas.bbox(canvas.create_window(100, 28, window=entry))
+canvas.create_rectangle(entry_bbox[0] - 10, entry_bbox[1] - 5, entry_bbox[2] + 10, entry_bbox[3] + 5, outline="#262b37", width=20)
+
+for button_text, (x, y) in buttons:
+    if button_text == '=':
+        create_circle_button(canvas, x, y, button_text, calculate_result, color='#2a4678')
+    elif button_text == 'AC':
+        create_circle_button(canvas, x, y, button_text, clear_entry, color='#583e5b')
+    elif button_text in {'÷', '-', '+', 'X'}:
+        create_circle_button(canvas, x, y, button_text, calculate_result if button_text == '=' else lambda b=button_text: button_click(b), color='#3e4758')
+    elif button_text in {'(', ')'}:
+        create_circle_button(canvas, x, y, button_text, lambda b=button_text: add_bracket(b), color='#3e4758')
+    else:
+        create_circle_button(canvas, x, y, button_text, lambda b=button_text: button_click(b) if b not in {'⌫'} else backspace(), color='#181c23')
+
+root.mainloop()
+
+
+
+# Draw red rectangle around entry widget
+entry_bbox = canvas.bbox(canvas.create_window(160, 30, window=entry))
+canvas.create_rectangle(entry_bbox[0] - 10, entry_bbox[1] - 5, entry_bbox[2] + 10, entry_bbox[3] + 5, outline="#262b37", width=20)
+
